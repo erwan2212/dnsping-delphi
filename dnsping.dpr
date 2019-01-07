@@ -301,8 +301,8 @@ begin
   writeln('usage: dnsping query nameserver query delay_seconds');
   writeln('usage: dnsping cache');
   writeln('usage: dnsping flush');
-  writeln('usage: dnsping add hostname ip');
-  writeln('usage: dnsping delete hostname ip');  
+  writeln('usage: dnsping add nameserver hostname ip');
+  writeln('usage: dnsping delete nameserver hostname ip');  
   end;
 //******************************************************************  
   if lowercase(Paramstr(1))='flush' then
@@ -322,13 +322,13 @@ begin
 //*********************************************************************  
   if lowercase(Paramstr(1))='add' then
     begin
-    ret:= AddDnsEntry(Paramstr(1),Paramstr(2), Paramstr(3));
+    ret:= AddDnsEntry(Paramstr(2),Paramstr(3), Paramstr(4));
     if ret=0 then writeln('ok') else writeln('failed:'+inttostr(ret));
     exit;
     end;
   if lowercase(Paramstr(1))='delete' then
     begin
-    ret:= DelDnsEntry(Paramstr(1),Paramstr(2), Paramstr(3));
+    ret:= DelDnsEntry(Paramstr(2),Paramstr(3), Paramstr(4));
     if ret=0 then writeln('ok') else writeln('failed:'+inttostr(ret));
     exit;
     end;
