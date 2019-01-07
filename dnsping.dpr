@@ -336,14 +336,14 @@ begin
   if lowercase(Paramstr(1))='query' then
   begin
   writeln('timestamp query result ttl duration');
-  if paramcount<3
+  if paramcount<4
     then ping(paramstr(2),paramstr(3))
     else
     begin
     while 1=1 do
       begin
       ping(paramstr(2),paramstr(3));
-      sleep(strtoint(paramstr(3))*1000);
+      sleep(strtoint(paramstr(4))*1000);
       end;
     end;
   end;
