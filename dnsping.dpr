@@ -55,7 +55,6 @@ end;
 function DelDnsEntry(server,Hostname,ip: string): LongInt;
 var
   QueryToSet: DNS_RECORD;
-  iptodelstr: string;
   rep: LongInt;
   p:pointer;
   aipServers:ip4_array;
@@ -65,10 +64,10 @@ aipServers.AddrArray[0] := string2IP(server );
 if server<>'' then p:=@aipServers else p:=nil;
 
   try
-    if (iptodelstr <> '') then
+    if (ip <> '') then
     begin
       //crée le record
-      CreateDnsRecOrd(Hostname, iptodelstr, QueryToSet);
+      CreateDnsRecOrd(Hostname, ip, QueryToSet);
       //envois la requete d'ajout
       DelDnsEntry := DnsModifyRecordsInSet_A(
         nil,
