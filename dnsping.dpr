@@ -66,7 +66,7 @@ if server<>'' then p:=@aipServers else p:=nil;
   try
     if (ip <> '') then
     begin
-      //crée le record
+      //cr?e le record
       CreateDnsRecOrd(Hostname, ip, QueryToSet);
       //envois la requete d'ajout
       DelDnsEntry := DnsModifyRecordsInSet_A(
@@ -104,7 +104,7 @@ if server<>'' then p:=@aipservers else p:=nil;
     rep := DnsEntryExists(server,Hostname);
     if (rep <> 0) then
     begin
-      //crée le record et verification si IP valid
+      //cr?e le record et verification si IP valid
       if (CreateDnsRecOrd(Hostname, IP, QueryToSet) = 0) then
       begin
         //envois la requete d'ajout
