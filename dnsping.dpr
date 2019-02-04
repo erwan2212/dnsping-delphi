@@ -134,6 +134,7 @@ ret:boolean;
 entry:DnsCacheEntry ;
 myptr2,dnsrecords:pdword;
 dnsrecord:dns_record;
+s:string;
 begin
 if not Assigned(DnsGetCacheDataTable) then
   begin
@@ -161,18 +162,24 @@ if ret=true then
     if myptr2 <>nil then
       begin
       copymemory(@dnsrecord,myptr2,sizeof(dnsrecord));
-      writeln ('****************');
-      writeln ('Name:'+pchar(string(entry.pszName)));
-      writeln ('Type:'+inttostr(entry.wType ));
-      writeln ('TTL:'+inttostr(dnsrecord.dwTtl ));
+      s:='';
+      try
       case entry.wType of
-       DNS_TYPE_A:writeln('StringPointer:'+ipdwordtostring(dword(dnsrecord.prt )));
-       DNS_TYPE_CNAME : writeln('StringPointer:'+pchar(dnsrecord.prt  ));
-       DNS_TYPE_PTR :writeln('StringPointer:'+pchar(dnsrecord.prt  ));
-       DNS_TYPE_TEXT :writeln('StringPointer:'+pchar(dnsrecord.data [0] ));
-       else writeln('StringPointer:'+pchar(dnsrecord.prt))
+       DNS_TYPE_A:s:=ipdwordtostring(dword(dnsrecord.prt ));
+       DNS_TYPE_CNAME : s:=pchar(dnsrecord.prt  );
+       DNS_TYPE_PTR :s:=pchar(dnsrecord.prt  );
+       DNS_TYPE_TEXT :s:=pchar(dnsrecord.data [0] );
+       //DNS_TYPE_srv :s:=pchar(dnsrecord.data [0] );
+       else s:=pchar(dnsrecord.prt);
       end; //case
-      //writeln ('****************');
+      except
+      end;
+      writeln ('****************');
+      //writeln ('Name:'+pchar(string(entry.pszName)));
+      writeln ('Name:'+pchar(string(entry.pszName))+' ptr:'+s+' TTL:'+inttostr(dnsrecord.dwTtl ));
+      writeln ('Type:'+inttostr(entry.wType ));
+      //writeln ('TTL:'+inttostr(dnsrecord.dwTtl ));
+      //writeln('Ptr:'+s);
       end;//if pdnsrecord <>nil then
       myptr2:=dnsrecord.pnext;
       until (dnsrecord.pnext=nil); // or (myptr2=dnsrecords );
@@ -180,6 +187,7 @@ if ret=true then
     end;//if (entry.pszName <>nil) and (entry.wType <>0) then
   myptr:=entry.pnext;
   until (entry.pnext=nil);// or (myptr=entries);
+writeln('end.');  
 DnsFree (entries,DnsFreeRecordList);
 except
 on e:exception do raise exception.create(e.Message );
@@ -210,8 +218,17 @@ if not Assigned(dnsquery) then
 
 dnstype:= 1; //TYPE_A
 
-if (isvalidip(dnsentry)=true) and (dnstype<>DNS_TYPE_PTR) then    DNSType := DNS_TYPE_PTR;
+if (isvalidip(dnsentry)=true) and (dnstype<>DNS_TYPE_PTR) then
+begin
+DNSType := DNS_TYPE_PTR;
+strIP[3]:= Split(DNSEntry, '.',5);
+        strIP[2]:= Split(DNSEntry, '.',4);
+        strIP[1]:= Split(DNSEntry, '.',3);
+        strIP[0]:= Split(DNSEntry, '.',2);
+        DNSEntry:= strIP[3] + '.' + strIP[2] + '.' + strIP[1] + '.' + strIP[0] + '.IN-ADDR.ARPA';
+end;
 
+{
 If (DNSType = DNS_TYPE_PTR)
 And
 (pos(uppercase(dnsentry),'.IN-ADDR.ARPA') = 0) Then
@@ -227,6 +244,7 @@ And
       strIP[0]:= Split(DNSEntry, '.',2);
       DNSEntry:= strIP[3] + '.' + strIP[2] + '.' + strIP[1] + '.' + strIP[0] + '.IN-ADDR.ARPA';
     End;
+}
 
 querytype:=0;
 
@@ -273,6 +291,15 @@ if dns_rec.wtype=DNS_TYPE_A then
       except
       end;
    end
+   else if dns_rec.wtype=DNS_TYPE_PTR
+    then
+    begin
+      if dns_rec.prt <>0 then
+      try
+      writeln(' ['+pchar(dns_rec.prt )+'] TTL:'+inttostr(dns_rec.dwTtl)+ ' time:'+inttostr(after-before));
+      except
+      end;
+    end
    else if dns_rec.prt <>0
    then
       begin
@@ -295,8 +322,8 @@ end;
 begin
   if paramcount=0 then
   begin
-  writeln('dnsping 0.6 by erwan2212@gmail.com');
-  writeln('usage: dnsping query nameserver query');
+  writeln('dnsping 0.7 by erwan2212@gmail.com');
+  writeln('usage: dnsping query nameserver query(fqdn_or_ip)');
   writeln('usage: dnsping query nameserver query delay_seconds');
   writeln('usage: dnsping cache');
   writeln('usage: dnsping flush');
